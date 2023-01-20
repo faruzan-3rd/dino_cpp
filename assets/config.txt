@@ -1,0 +1,13 @@
+width:1200
+height:500
+jump_pow:380
+gravity:1000
+dino_max_y:367
+frame_rate_limit:120
+ground_default_spd:300
+dino_anim_interval:0.15
+lie_down_offset:20
+init_obj_interval:2.8
+interval_decay:0.03
+dino_speed_up:1
+ground_height:400
