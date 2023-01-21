@@ -1,7 +1,7 @@
 width:1200
 height:500
-jump_pow:380
-gravity:1000
+jump_pow:580
+gravity:1600
 dino_max_y:367
 frame_rate_limit:120
 ground_default_spd:300
@@ -11,3 +11,5 @@ init_obj_interval:2.8
 interval_decay:0.03
 dino_speed_up:1
 ground_height:400
+obstacles_y_offset:10
+crow_height_limit:40

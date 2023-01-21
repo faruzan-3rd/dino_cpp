@@ -33,6 +33,10 @@ int main(){
     int lie_down_offset{std::stoi(cfg["lie_down_offset"])};
     int speed_up_rate{std::stoi(cfg["dino_speed_up"])};
     int ground_height{std::stoi(cfg["ground_height"])};
+    int obstacles_y_offset{std::stoi(cfg["obstacles_y_offset"])};
+    int crow_height_limit{std::stoi(cfg["crow_height_limit"])};
+    float init_obj_interval{std::stof(cfg["init_obj_interval"])};
+    float interval_decay{std::stof(cfg["interval_decay"])};
 
     // Physics
     sf::Vector2f dino_pos(50, dino_y_lim);
@@ -46,15 +50,18 @@ int main(){
     ground::set_initial_pos(ground1, ground1_pos, ground2_pos);
 
     // Obstacles
-    std::vector<sf::Sprite> obstacles{sprites["cactus1"], sprites["crow1"]};
-    ObstacleGenerator generator(obstacles.size(), std::stof(cfg["init_obj_interval"]), std::stof(cfg["interval_decay"]));
-    std::vector<sf::Sprite> current_obstacles(0);
-    int obstacles_y_offset{10};
+    std::vector<sf::Sprite> cactuses{sprites["cactus1"]};
+    std::vector<std::vector<sf::Sprite>> crows{ {sprites["crow1"], sprites["crow2"]} };
+    ObstacleGenerator generator(cactuses, crows, obstacles_y_offset, anim_upd_interval, ground_height, width, crow_height_limit, init_obj_interval, interval_decay);
+    std::vector<Obstacle> current_obstacles(0);
+
+    // Obstacle test = Obstacle(0, cactuses, 0, 1, 400, width, 10);
 
     // Other
     sf::Clock clock;
     int dino_anim_frame{0};
     float dino_anim_upd_timer{0};
+    bool physics_activated = true;
 
     while (window.isOpen())
     {
@@ -69,29 +76,10 @@ int main(){
         window.clear(sf::Color::White);
 
         // OBSTACLES
-        int generator_ret = generator.update(delta);
-        if(generator_ret != -1){
-            // copied
-            sf::Sprite new_obstacle = obstacles[generator_ret];
-
-            new_obstacle.setPosition(sf::Vector2f(width, ground_height - new_obstacle.getTextureRect().height + obstacles_y_offset));
-            current_obstacles.push_back(new_obstacle);
-
-            objects_spd += speed_up_rate;
+        if(generator.update(delta)){
+            generator.generate_obstacle(current_obstacles, objects_spd, speed_up_rate);
         }
-
-        std::vector<sf::Sprite> new_obs;
-        for(sf::Sprite obstacle : current_obstacles){
-            obstacle.setPosition(obstacle.getPosition().x - delta * objects_spd, obstacle.getPosition().y);
-
-            if(obstacle.getPosition().x > -150){
-                window.draw(obstacle);
-                new_obs.push_back(obstacle);
-            }
-        }
-
-        current_obstacles = new_obs;
-
+        update_obstacles(current_obstacles, objects_spd, delta, window);
 
         // DINO STUFF
         dino_anim_upd_timer += delta;
