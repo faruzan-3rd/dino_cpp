@@ -55,8 +55,6 @@ int main(){
     ObstacleGenerator generator(cactuses, crows, obstacles_y_offset, anim_upd_interval, ground_height, width, crow_height_limit, init_obj_interval, interval_decay);
     std::vector<Obstacle> current_obstacles(0);
 
-    // Obstacle test = Obstacle(0, cactuses, 0, 1, 400, width, 10);
-
     // Other
     sf::Clock clock;
     int dino_anim_frame{0};
@@ -79,21 +77,31 @@ int main(){
         if(generator.update(delta)){
             generator.generate_obstacle(current_obstacles, objects_spd, speed_up_rate);
         }
-        update_obstacles(current_obstacles, objects_spd, delta, window);
+        update_obstacles(current_obstacles, objects_spd, delta, window, physics_activated);
 
-        // DINO STUFF
-        dino_anim_upd_timer += delta;
-        dino::movement(jump_velo, is_grounded, is_lying_down, jump_pow);
-        dino::update_dino_pos(jump_velo, dino_pos, delta);
-        dino::update_anim_sprite(dino_sp, run_anim_frames, sprites["dino_static"], sprites["dino_lie"], dino_anim_frame, dino_anim_upd_timer, anim_upd_interval, is_grounded, is_lying_down);
-        dino::update_velocity(jump_velo, gravity, delta);
-        dino::check_dino_status(jump_velo, is_grounded, dino_pos, dino_y_lim);
-        sf::Vector2f final_pos = dino_pos;
-        final_pos.y += is_lying_down * lie_down_offset;
-        dino_sp.setPosition(final_pos);
+        sf::Vector2f dino_dim;
+        if(is_lying_down) dino_dim = sf::Vector2f(sprites["dino_lie"].getTextureRect().width, sprites["dino_lie"].getTextureRect().height);
+        else dino_dim = sf::Vector2f(sprites["dino_static"].getTextureRect().width, sprites["dino_static"].getTextureRect().height);
 
-        // GROUND STUFF
-        ground::move_and_check(ground1, ground2, ground1_pos, ground2_pos, objects_spd, delta);
+        if(check_collision(current_obstacles, dino_pos + sf::Vector2f(0, is_lying_down * lie_down_offset), dino_dim, physics_activated)){
+            
+        }
+
+        if(physics_activated){
+            // DINO STUFF
+            dino_anim_upd_timer += delta;
+            dino::movement(jump_velo, is_grounded, is_lying_down, jump_pow);
+            dino::update_dino_pos(jump_velo, dino_pos, delta);
+            dino::update_anim_sprite(dino_sp, run_anim_frames, sprites["dino_static"], sprites["dino_lie"], dino_anim_frame, dino_anim_upd_timer, anim_upd_interval, is_grounded, is_lying_down);
+            dino::update_velocity(jump_velo, gravity, delta);
+            dino::check_dino_status(jump_velo, is_grounded, dino_pos, dino_y_lim);
+            sf::Vector2f final_pos = dino_pos;
+            final_pos.y += is_lying_down * lie_down_offset;
+            dino_sp.setPosition(final_pos);
+
+            // GROUND STUFF
+            ground::move_and_check(ground1, ground2, ground1_pos, ground2_pos, objects_spd, delta);
+        }
 
         // DRAW
         window.draw(dino_sp);

@@ -17,6 +17,10 @@ class Obstacle{
 
         void draw(sf::RenderWindow& window);
 
+        sf::Vector2f get_position();
+
+        sf::Vector2f get_dimension();
+
     private:
         int obstacle_type;
         std::vector<sf::Sprite> frames;
@@ -53,7 +57,9 @@ class ObstacleGenerator{
 };
 
 
-void update_obstacles(std::vector<Obstacle>& obstacles, const int& speed, const float& delta, sf::RenderWindow& window);
+void update_obstacles(std::vector<Obstacle>& obstacles, const int& speed, const float& delta, sf::RenderWindow& window, bool physics_activated);
+
+bool check_collision(const std::vector<Obstacle>& obstacles, const sf::Vector2f& dino_pos, const sf::Vector2f& dino_dim, bool& physics_enabled);
 
 
 #endif

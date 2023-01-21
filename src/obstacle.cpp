@@ -1,4 +1,5 @@
 #include "obstacle.hpp"
+#include "sftools/collision/collision.hpp"
 #include <iostream>
 
 
@@ -34,6 +35,14 @@ void Obstacle::update(int speed, float delta){
 void Obstacle::draw(sf::RenderWindow& window){
     frames[cur_frame].setPosition(position);
     window.draw(frames[cur_frame]);
+}
+
+sf::Vector2f Obstacle::get_position(){
+    return position;
+}
+
+sf::Vector2f Obstacle::get_dimension(){
+    return sf::Vector2f(frames[cur_frame].getTextureRect().width, frames[cur_frame].getTextureRect().height);
 }
 
 
@@ -74,9 +83,26 @@ void ObstacleGenerator::generate_obstacle(std::vector<Obstacle>& current_obstacl
 }
 
 
-void update_obstacles(std::vector<Obstacle>& obstacles, const int& speed, const float& delta, sf::RenderWindow& window){
+void update_obstacles(std::vector<Obstacle>& obstacles, const int& speed, const float& delta, sf::RenderWindow& window, bool physics_activated){
     for(Obstacle& obs : obstacles){
-        obs.update(speed, delta);
+        if(physics_activated) obs.update(speed, delta);
         obs.draw(window);
     }
+}
+
+
+bool check_collision(const std::vector<Obstacle>& obstacles, const sf::Vector2f& dino_pos, const sf::Vector2f& dino_dim, bool& physics_enabled){
+    if(!physics_enabled) return false;
+
+    for(Obstacle obs : obstacles){
+        sf::Vector2f origin = obs.get_position();
+        sf::Vector2f dimension = obs.get_dimension();
+
+        if(is_colliding(dino_pos, dino_dim, origin, dimension)){
+            physics_enabled = false;
+            return true;
+        }
+    }
+
+    return false;
 }

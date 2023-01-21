@@ -19,8 +19,8 @@ void dino::movement(float& dino_y_velocity, bool& is_grounded, bool& is_lying_do
 
 
 void dino::update_velocity(float& dino_y_velocity, const int& gravity, const float delta){
-        dino_y_velocity += delta * abs(gravity);
-    }
+    dino_y_velocity += delta * abs(gravity);
+}
 
 
 void dino::update_dino_pos(float& dino_y_velocity, sf::Vector2f& dino_pos, const float delta){
