@@ -41,8 +41,11 @@ class ObstacleGenerator{
 
         void generate_obstacle(std::vector<Obstacle>& current_obstacles, int& objects_spd, int& spd_up_rate);
 
+        void reset();
+
     private:
         float interval;
+        const float default_interval;
         const float interval_modifier;
         float timer{0};
         std::mt19937 engine;

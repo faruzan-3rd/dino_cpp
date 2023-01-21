@@ -6,6 +6,11 @@
 #include "obstacle.hpp"
 
 
+void reinitialize_game(std::map<std::string, std::string>& cfg, int& objects_spd, ObstacleGenerator& generator, sf::Vector2f& dino_pos, int& dino_y_lim,
+                       float& jump_velo, bool& is_grounded, bool& is_lying_down, float& delta, float& last_update, int& dino_anim_frame, float& dino_anim_upd_timer,
+                       bool& physics_activated, std::vector<Obstacle>& current_obstacles, sf::Vector2f& ground1_pos, sf::Vector2f ground2_pos, int& ground_height);
+
+
 int main(){
     // Basic configs
     std::map<std::string, std::string> cfg = load_config("assets/config.txt");
@@ -50,7 +55,7 @@ int main(){
     ground::set_initial_pos(ground1, ground1_pos, ground2_pos);
 
     // Obstacles
-    std::vector<sf::Sprite> cactuses{sprites["cactus1"]};
+    std::vector<sf::Sprite> cactuses{sprites["cactus1"], sprites["cactus2"], sprites["cactus3"]};
     std::vector<std::vector<sf::Sprite>> crows{ {sprites["crow1"], sprites["crow2"]} };
     ObstacleGenerator generator(cactuses, crows, obstacles_y_offset, anim_upd_interval, ground_height, width, crow_height_limit, init_obj_interval, interval_decay);
     std::vector<Obstacle> current_obstacles(0);
@@ -60,6 +65,8 @@ int main(){
     int dino_anim_frame{0};
     float dino_anim_upd_timer{0};
     bool physics_activated = true;
+    sprites["game_over"].setPosition(sf::Vector2f(width * 0.5 - 96, 100));
+    sprites["again"].setPosition(sf::Vector2f(width * 0.5 - 15, 150));
 
     while (window.isOpen())
     {
@@ -83,11 +90,8 @@ int main(){
         if(is_lying_down) dino_dim = sf::Vector2f(sprites["dino_lie"].getTextureRect().width, sprites["dino_lie"].getTextureRect().height);
         else dino_dim = sf::Vector2f(sprites["dino_static"].getTextureRect().width, sprites["dino_static"].getTextureRect().height);
 
-        if(check_collision(current_obstacles, dino_pos + sf::Vector2f(0, is_lying_down * lie_down_offset), dino_dim, physics_activated)){
-            
-        }
-
         if(physics_activated){
+            check_collision(current_obstacles, dino_pos + sf::Vector2f(0, is_lying_down * lie_down_offset), dino_dim, physics_activated);
             // DINO STUFF
             dino_anim_upd_timer += delta;
             dino::movement(jump_velo, is_grounded, is_lying_down, jump_pow);
@@ -102,6 +106,13 @@ int main(){
             // GROUND STUFF
             ground::move_and_check(ground1, ground2, ground1_pos, ground2_pos, objects_spd, delta);
         }
+        else{
+            window.draw(sprites["game_over"]);
+            window.draw(sprites["again"]);
+
+            reinitialize_game(cfg, objects_spd, generator, dino_pos, dino_y_lim, jump_velo, is_grounded, is_lying_down, delta, last_update,
+                                dino_anim_frame, dino_anim_upd_timer, physics_activated, current_obstacles, ground1_pos, ground2_pos, ground_height);
+        }
 
         // DRAW
         window.draw(dino_sp);
@@ -113,4 +124,26 @@ int main(){
     }
 
     return 0;
+}
+
+
+void reinitialize_game(std::map<std::string, std::string>& cfg, int& objects_spd, ObstacleGenerator& generator, sf::Vector2f& dino_pos, int& dino_y_lim,
+                       float& jump_velo, bool& is_grounded, bool& is_lying_down, float& delta, float& last_update, int& dino_anim_frame, float& dino_anim_upd_timer,
+                       bool& physics_activated, std::vector<Obstacle>& current_obstacles, sf::Vector2f& ground1_pos, sf::Vector2f ground2_pos, int& ground_height){
+    if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) return;
+
+    objects_spd = std::stoi(cfg["ground_default_spd"]);
+    generator.reset();
+    dino_pos = sf::Vector2f(50, dino_y_lim);
+    jump_velo = 0;
+    is_grounded = true, is_lying_down = false;
+    delta = 0;
+    last_update = 0;
+    dino_anim_frame = 0;
+    dino_anim_upd_timer = 0;
+    physics_activated = true;
+    current_obstacles.clear();
+    ground1_pos = sf::Vector2f(0, ground_height);
+    ground2_pos = sf::Vector2f(0, ground_height);
+
 }

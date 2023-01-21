@@ -47,7 +47,7 @@ sf::Vector2f Obstacle::get_dimension(){
 
 
 ObstacleGenerator::ObstacleGenerator(std::vector<sf::Sprite> cactuses, std::vector<std::vector<sf::Sprite>> crows, int y_offset, float anim_interval, int ground_height, int screen_width, int crow_height_limit, float generation_interval, float interval_modifier)
-                                        :  cactuses(cactuses), crows(crows), y_offset(y_offset), anim_interval(anim_interval), ground_height(ground_height), screen_width(screen_width), crow_height_limit(crow_height_limit), interval(generation_interval), interval_modifier(interval_modifier)
+                                        :  cactuses(cactuses), crows(crows), y_offset(y_offset), anim_interval(anim_interval), ground_height(ground_height), screen_width(screen_width), crow_height_limit(crow_height_limit), interval(generation_interval), interval_modifier(interval_modifier), default_interval(generation_interval)
 {
     engine = std::mt19937((unsigned) time(NULL));
     generator = std::uniform_real_distribution<double>(0, 1);
@@ -80,6 +80,10 @@ void ObstacleGenerator::generate_obstacle(std::vector<Obstacle>& current_obstacl
 
     objects_spd += spd_up_rate;
 
+}
+
+void ObstacleGenerator::reset(){
+    interval = default_interval;
 }
 
 

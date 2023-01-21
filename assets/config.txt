@@ -1,7 +1,7 @@
 width:1200
 height:500
-jump_pow:580
-gravity:1600
+jump_pow:650
+gravity:1750
 dino_max_y:367
 frame_rate_limit:120
 ground_default_spd:300
